@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "def.h"
 #include "Tools.h"
 #include "AppTime.h"
 

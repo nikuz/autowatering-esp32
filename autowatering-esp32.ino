@@ -10,7 +10,7 @@
 #include "Relay.h"
 #include "AppSerial.h"
 #include "AppBlynk.h"
-//#include "Watering.h"
+#include "Watering.h"
 
 static const char *TAG = "autowatering";
 AppTime timer;
@@ -54,16 +54,6 @@ void otaUpdateHandler() {
     otaUpdate.begin(AppTime::getTimeString(AppTime::getCurrentTime()));
 }
 
-void checkMoisture() {
-    Serial.print("Soil moisture: ");
-    Serial.println(Sensor::getSoilMoisture(1));
-    if (Sensor::getSoilMoisture(1) < wSoilMstrMin) {
-        Relay::wateringOpenValve("s1");
-    } else {
-        Relay::wateringCloseValve("s1");
-    }
-}
-
 void setup() {
     // initiate screen first to show loading state
     Screen::initiate();
@@ -83,8 +73,12 @@ void setup() {
     pinMode(MEGA_RESET_PIN, OUTPUT);
 
     // initially off all the loads
-//    Relay::wateringCloseValve();
-//    Relay::wateringOff();
+    for (int i = 1; i <= 8; i++) {
+        char command[] = "s";
+        char *commandEnd = Tools::intToChar(i);
+        strcat(command, commandEnd);
+        Relay::wateringOff(command);
+    }
 
     // restore preferences
     AppStorage::setVariable(&otaHost, "otaHost");
@@ -108,15 +102,6 @@ void setup() {
         AppSerial::sendFrame(&timeFrame);
     }
 
-    Relay::wateringCloseValve("s1");
-    Relay::wateringCloseValve("s2");
-    Relay::wateringCloseValve("s3");
-    Relay::wateringCloseValve("s4");
-    Relay::wateringCloseValve("s5");
-    Relay::wateringCloseValve("s6");
-    Relay::wateringCloseValve("s7");
-    Relay::wateringCloseValve("s8");
-
 //    Watering::setVariable(&autoWatering, "autoWatering");
 //    Watering::setVariable(&wSoilMstrMin, "wSoilMstrMin");
 //    Watering::setVariable(&lastWatering, "lastWatering");
@@ -132,7 +117,6 @@ void setup() {
 
 //    timer.setInterval("watering", wateringInterval, Watering::check);
 //    timer.setInterval("wateringProgress", wateringProgressCheckInterval, Watering::checkProgress);
-    timer.setInterval("testWatering", wateringProgressCheckInterval, checkMoisture);
     timer.setInterval("screenRefresh", screenRefreshInterval, Screen::refresh);
     timer.setInterval("ota", otaCheckUpdateInterval, otaUpdateHandler);
     timer.setInterval("blynkCheckConnect", blynkCheckConnectInterval, AppBlynk::checkConnect);

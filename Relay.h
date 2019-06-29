@@ -12,17 +12,13 @@ public:
     static void parseSerialCommand(const char *command, const char *param);
 
     // watering
-    static bool isWateringOn();
+    static bool isWateringEnabled();
 
-    static bool wateringValveIsOpen(char *valveId);
+    static bool IsValveOpenedFor(char *valveId);
 
-    static void wateringOpenValve(char *valveId);
+    static void wateringOn(char *valveId);
 
-    static void wateringCloseValve(char *valveId);
-
-    static void wateringOn();
-
-    static void wateringOff();
+    static void wateringOff(char *valveId);
 };
 
 #endif /* Relay_h */

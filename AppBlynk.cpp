@@ -246,7 +246,7 @@ void AppBlynk::sync() { // every second
                 AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_3));
             };
             if (strcmp(pin, "watering") == 0) {
-                AppBlynk::postData(pin, Relay::isWateringOn() ? 255 : 0);
+                AppBlynk::postData(pin, Relay::isWateringEnabled() ? 255 : 0);
             };
 //            if (strcmp(pin, "lastWatering") == 0) {
 //                AppBlynk::postData(pin, Watering::getStringVariable(pin));
