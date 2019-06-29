@@ -1,4 +1,4 @@
-//#include <EspOta.h>
+#include <EspOta.h>
 
 #include "def.h"
 #include "AppWiFi.h"
@@ -24,9 +24,9 @@ String otaBin = "/esp32-updates/autowatering.bin";
 String otaBin = "/esp32-updates/autowatering-dev.bin";
 #endif
 #ifdef DEBUG
-//EspOta otaUpdate(otaHost, otaPort, otaBin, TAG, true);
+EspOta otaUpdate(otaHost, otaPort, otaBin, TAG, true);
 #else
-//EspOta otaUpdate(otaHost, otaPort, otaBin, TAG);
+EspOta otaUpdate(otaHost, otaPort, otaBin, TAG);
 #endif
 const unsigned long otaCheckUpdateInterval = 60UL * 1000UL;  // check OTA update every minute
 
@@ -44,15 +44,15 @@ const unsigned long blynkCheckConnectInterval = 30UL * 1000UL;  // check blynk c
 
 const unsigned long uptimePrintInterval = 1UL * 1000UL;
 
-//void otaUpdateHandler() {
-//    if (Tools::millisOverflowIsClose()) {
-//        return;
-//    }
-//    if (otaUpdate._host != otaHost || otaUpdate._bin != otaBin) {
-//        otaUpdate.updateEntries(otaHost, otaPort, otaBin);
-//    }
-//    otaUpdate.begin(AppTime::getTimeString(AppTime::getCurrentTime()));
-//}
+void otaUpdateHandler() {
+    if (Tools::millisOverflowIsClose()) {
+        return;
+    }
+    if (otaUpdate._host != otaHost || otaUpdate._bin != otaBin) {
+        otaUpdate.updateEntries(otaHost, otaPort, otaBin);
+    }
+    otaUpdate.begin(AppTime::getTimeString(AppTime::getCurrentTime()));
+}
 
 void checkMoisture() {
     Serial.print("Soil moisture: ");
