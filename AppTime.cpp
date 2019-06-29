@@ -4,7 +4,7 @@
 #include "def.h"
 #include "AppTime.h"
 #include "AppWiFi.h"
-//#include "AppBlynk.h"
+#include "AppBlynk.h"
 #include "Tools.h"
 
 const char *ntpServer = "1.rs.pool.ntp.org";
@@ -206,11 +206,11 @@ void AppTime::print() {
 
     char *ntpTime[] = {"ntpTime: ", AppTime::getTimeString(timeinfo)};
     char *ntpTimeStr = Tools::getCharArray(ntpTime, 2);
-//    AppBlynk::println(ntpTimeStr);
+    AppBlynk::println(ntpTimeStr);
 
     char *rtcTime[] = {"rtcTime: ", AppTime::getTimeString(RTCCurrentTime)};
     char *rtcTimeStr = Tools::getCharArray(rtcTime, 2);
-//    AppBlynk::println(rtcTimeStr);
+    AppBlynk::println(rtcTimeStr);
 }
 
 void AppTime::setVariable(int *var, const char *key) {

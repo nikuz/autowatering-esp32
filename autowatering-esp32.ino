@@ -9,7 +9,7 @@
 #include "Screen.h"
 #include "Relay.h"
 #include "AppSerial.h"
-//#include "AppBlynk.h"
+#include "AppBlynk.h"
 //#include "Watering.h"
 
 static const char *TAG = "autowatering";
@@ -80,6 +80,8 @@ void setup() {
         ;
     }
 
+    pinMode(MEGA_RESET_PIN, OUTPUT);
+
     // initially off all the loads
 //    Relay::wateringCloseValve();
 //    Relay::wateringOff();
@@ -120,21 +122,23 @@ void setup() {
 //    Watering::setVariable(&lastWatering, "lastWatering");
 
     // register Blynk variables
-//    AppBlynk::setVariable(&otaHost, "otaHost");
-//    AppBlynk::setVariable(&otaBin, "otaBin");
-//    AppBlynk::setVariable(&wSoilMstrMin, "wSoilMstrMin");
-//    AppBlynk::setVariable(&autoWatering, "autoWatering");
+    AppBlynk::setVariable(&otaHost, "otaHost");
+    AppBlynk::setVariable(&otaBin, "otaBin");
+    AppBlynk::setVariable(&wSoilMstrMin, "wSoilMstrMin");
+    AppBlynk::setVariable(&autoWatering, "autoWatering");
 
     // start Blynk connection
-//    AppBlynk::initiate();
+    AppBlynk::initiate();
 
 //    timer.setInterval("watering", wateringInterval, Watering::check);
 //    timer.setInterval("wateringProgress", wateringProgressCheckInterval, Watering::checkProgress);
     timer.setInterval("testWatering", wateringProgressCheckInterval, checkMoisture);
     timer.setInterval("screenRefresh", screenRefreshInterval, Screen::refresh);
-//    timer.setInterval("ota", otaCheckUpdateInterval, otaUpdateHandler);
-//    timer.setInterval("blynkCheckConnect", blynkCheckConnectInterval, AppBlynk::checkConnect);
-//    timer.setInterval("blynkSync", blynkSyncInterval, AppBlynk::sync);
+    timer.setInterval("ota", otaCheckUpdateInterval, otaUpdateHandler);
+    timer.setInterval("blynkCheckConnect", blynkCheckConnectInterval, AppBlynk::checkConnect);
+    timer.setInterval("blynkSync", blynkSyncInterval, AppBlynk::sync);
+
+    Tools::megaRestart();
 }
 
 void loop() {
@@ -151,7 +155,7 @@ void loop() {
         Tools::parseSerialCommand(serialFrame.command, serialFrame.param);
     }
 
-//    AppBlynk::run();
+    AppBlynk::run();
 
     timer.run();
 }

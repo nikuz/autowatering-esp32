@@ -52,3 +52,5 @@
 #define SOIL_SENSOR_8 8
 #define SOIL_SENSOR_8_MIN 680
 #define SOIL_SENSOR_8_MAX 163
+
+#define MEGA_RESET_PIN 15

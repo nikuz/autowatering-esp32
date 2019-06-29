@@ -82,3 +82,9 @@ bool Tools::millisOverflowIsClose() {
 char *Tools::getMegaUptime() {
     return megaUptimeString;
 }
+
+void Tools::megaRestart() {
+    digitalWrite(MEGA_RESET_PIN, LOW);
+    delay(10);
+    digitalWrite(MEGA_RESET_PIN, HIGH);
+}
