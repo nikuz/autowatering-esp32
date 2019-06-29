@@ -7,8 +7,8 @@
 static Preferences preferences;
 static const char *TAG = "gbx_storage";
 
-static StorageIntVariable intVariables[10];
-static StorageStringVariable stringVariables[10];
+static StorageIntVariable intVariables[15];
+static StorageStringVariable stringVariables[15];
 
 AppStorage::AppStorage() {}
 

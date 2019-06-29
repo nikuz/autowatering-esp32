@@ -16,9 +16,9 @@ public:
 
     static bool IsValveOpenedFor(char *valveId);
 
-    static void wateringOn(char *valveId);
+    static void wateringOpenValve(char *valveId);
 
-    static void wateringOff(char *valveId);
+    static void wateringCloseValve(char *valveId);
 };
 
 #endif /* Relay_h */

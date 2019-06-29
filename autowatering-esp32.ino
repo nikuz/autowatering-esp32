@@ -35,9 +35,33 @@ const unsigned long screenRefreshInterval = 2UL * 1000UL; // refresh screen ever
 // watering
 const unsigned long wateringInterval = 5UL * 1000UL; // check every 5 seconds
 const unsigned long wateringProgressCheckInterval = 1UL * 1000UL;  // check every second
-int autoWatering = 0; // auto watering disabled by default
+int autoWatering = 0;   // auto watering disabled by default
 int wSoilMstrMin = 30;
-String lastWatering = "";
+int wInterval = 5;
+int s1MnlWtrng = 0;
+int s2MnlWtrng = 0;
+int s3MnlWtrng = 0;
+int s4MnlWtrng = 0;
+int s5MnlWtrng = 0;
+int s6MnlWtrng = 0;
+int s7MnlWtrng = 0;
+int s8MnlWtrng = 0;
+int s1WtrngDur = 5;      // 5 sec
+int s2WtrngDur = 5;      // 5 sec
+int s3WtrngDur = 5;      // 5 sec
+int s4WtrngDur = 5;      // 5 sec
+int s5WtrngDur = 5;      // 5 sec
+int s6WtrngDur = 5;      // 5 sec
+int s7WtrngDur = 5;      // 5 sec
+int s8WtrngDur = 5;      // 5 sec
+String s1LstWtrng = "";
+String s2LstWtrng = "";
+String s3LstWtrng = "";
+String s4LstWtrng = "";
+String s5LstWtrng = "";
+String s6LstWtrng = "";
+String s7LstWtrng = "";
+String s8LstWtrng = "";
 
 const unsigned long blynkSyncInterval = 2UL * 1000UL;  // sync blynk state every second
 const unsigned long blynkCheckConnectInterval = 30UL * 1000UL;  // check blynk connection every 30 seconds
@@ -77,7 +101,7 @@ void setup() {
         char command[] = "s";
         char *commandEnd = Tools::intToChar(i);
         strcat(command, commandEnd);
-        Relay::wateringOff(command);
+        Relay::wateringCloseValve(command);
     }
 
     // restore preferences
@@ -85,7 +109,22 @@ void setup() {
     AppStorage::setVariable(&otaBin, "otaBin");
     AppStorage::setVariable(&wSoilMstrMin, "wSoilMstrMin");
     AppStorage::setVariable(&autoWatering, "autoWatering");
-    AppStorage::setVariable(&lastWatering, "lastWatering");
+    AppStorage::setVariable(&s1LstWtrng, "s1LstWtrng");
+    AppStorage::setVariable(&s2LstWtrng, "s2LstWtrng");
+    AppStorage::setVariable(&s3LstWtrng, "s3LstWtrng");
+    AppStorage::setVariable(&s4LstWtrng, "s4LstWtrng");
+    AppStorage::setVariable(&s5LstWtrng, "s5LstWtrng");
+    AppStorage::setVariable(&s6LstWtrng, "s6LstWtrng");
+    AppStorage::setVariable(&s7LstWtrng, "s7LstWtrng");
+    AppStorage::setVariable(&s8LstWtrng, "s8LstWtrng");
+    AppStorage::setVariable(&s1WtrngDur, "s1WtrngDur");
+    AppStorage::setVariable(&s2WtrngDur, "s2WtrngDur");
+    AppStorage::setVariable(&s3WtrngDur, "s3WtrngDur");
+    AppStorage::setVariable(&s4WtrngDur, "s4WtrngDur");
+    AppStorage::setVariable(&s5WtrngDur, "s5WtrngDur");
+    AppStorage::setVariable(&s6WtrngDur, "s6WtrngDur");
+    AppStorage::setVariable(&s7WtrngDur, "s7WtrngDur");
+    AppStorage::setVariable(&s8WtrngDur, "s8WtrngDur");
     AppStorage::restore();
 
     // setup wifi ip address etc.
@@ -102,21 +141,62 @@ void setup() {
         AppSerial::sendFrame(&timeFrame);
     }
 
-//    Watering::setVariable(&autoWatering, "autoWatering");
-//    Watering::setVariable(&wSoilMstrMin, "wSoilMstrMin");
-//    Watering::setVariable(&lastWatering, "lastWatering");
+    Watering::setVariable(&autoWatering, "autoWatering");
+    Watering::setVariable(&wSoilMstrMin, "wSoilMstrMin");
+    Watering::setVariable(&wInterval, "wInterval");
+    Watering::setVariable(&s1MnlWtrng, "s1MnlWtrng");
+    Watering::setVariable(&s2MnlWtrng, "s2MnlWtrng");
+    Watering::setVariable(&s3MnlWtrng, "s3MnlWtrng");
+    Watering::setVariable(&s4MnlWtrng, "s4MnlWtrng");
+    Watering::setVariable(&s5MnlWtrng, "s5MnlWtrng");
+    Watering::setVariable(&s6MnlWtrng, "s6MnlWtrng");
+    Watering::setVariable(&s7MnlWtrng, "s7MnlWtrng");
+    Watering::setVariable(&s8MnlWtrng, "s8MnlWtrng");
+    Watering::setVariable(&s1LstWtrng, "s1LstWtrng");
+    Watering::setVariable(&s2LstWtrng, "s2LstWtrng");
+    Watering::setVariable(&s3LstWtrng, "s3LstWtrng");
+    Watering::setVariable(&s4LstWtrng, "s4LstWtrng");
+    Watering::setVariable(&s5LstWtrng, "s5LstWtrng");
+    Watering::setVariable(&s6LstWtrng, "s6LstWtrng");
+    Watering::setVariable(&s7LstWtrng, "s7LstWtrng");
+    Watering::setVariable(&s8LstWtrng, "s8LstWtrng");
+    Watering::setVariable(&s1WtrngDur, "s1WtrngDur");
+    Watering::setVariable(&s2WtrngDur, "s2WtrngDur");
+    Watering::setVariable(&s3WtrngDur, "s3WtrngDur");
+    Watering::setVariable(&s4WtrngDur, "s4WtrngDur");
+    Watering::setVariable(&s5WtrngDur, "s5WtrngDur");
+    Watering::setVariable(&s6WtrngDur, "s6WtrngDur");
+    Watering::setVariable(&s7WtrngDur, "s7WtrngDur");
+    Watering::setVariable(&s8WtrngDur, "s8WtrngDur");
 
     // register Blynk variables
     AppBlynk::setVariable(&otaHost, "otaHost");
     AppBlynk::setVariable(&otaBin, "otaBin");
     AppBlynk::setVariable(&wSoilMstrMin, "wSoilMstrMin");
     AppBlynk::setVariable(&autoWatering, "autoWatering");
+    AppBlynk::setVariable(&wInterval, "wInterval");
+    AppBlynk::setVariable(&s1MnlWtrng, "s1MnlWtrng");
+    AppBlynk::setVariable(&s2MnlWtrng, "s2MnlWtrng");
+    AppBlynk::setVariable(&s3MnlWtrng, "s3MnlWtrng");
+    AppBlynk::setVariable(&s4MnlWtrng, "s4MnlWtrng");
+    AppBlynk::setVariable(&s5MnlWtrng, "s5MnlWtrng");
+    AppBlynk::setVariable(&s6MnlWtrng, "s6MnlWtrng");
+    AppBlynk::setVariable(&s7MnlWtrng, "s7MnlWtrng");
+    AppBlynk::setVariable(&s8MnlWtrng, "s8MnlWtrng");
+    AppBlynk::setVariable(&s1WtrngDur, "s1WtrngDur");
+    AppBlynk::setVariable(&s2WtrngDur, "s2WtrngDur");
+    AppBlynk::setVariable(&s3WtrngDur, "s3WtrngDur");
+    AppBlynk::setVariable(&s4WtrngDur, "s4WtrngDur");
+    AppBlynk::setVariable(&s5WtrngDur, "s5WtrngDur");
+    AppBlynk::setVariable(&s6WtrngDur, "s6WtrngDur");
+    AppBlynk::setVariable(&s7WtrngDur, "s7WtrngDur");
+    AppBlynk::setVariable(&s8WtrngDur, "s8WtrngDur");
 
     // start Blynk connection
     AppBlynk::initiate();
 
-//    timer.setInterval("watering", wateringInterval, Watering::check);
-//    timer.setInterval("wateringProgress", wateringProgressCheckInterval, Watering::checkProgress);
+    timer.setInterval("watering", wateringInterval, Watering::check);
+    timer.setInterval("wateringProgress", wateringProgressCheckInterval, Watering::checkProgress);
     timer.setInterval("screenRefresh", screenRefreshInterval, Screen::refresh);
     timer.setInterval("ota", otaCheckUpdateInterval, otaUpdateHandler);
     timer.setInterval("blynkCheckConnect", blynkCheckConnectInterval, AppBlynk::checkConnect);

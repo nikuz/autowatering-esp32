@@ -135,12 +135,12 @@ bool Relay::IsValveOpenedFor(char *valveId) {
     return false;
 }
 
-void Relay::wateringOn(char *valveId) {
+void Relay::wateringOpenValve(char *valveId) {
     SerialFrame openValveFrame = SerialFrame(relayOnSerialCommand, valveId);
     AppSerial::sendFrame(&openValveFrame);
 }
 
-void Relay::wateringOff(char *valveId) {
+void Relay::wateringCloseValve(char *valveId) {
     SerialFrame closeValveFrame = SerialFrame(relayOffSerialCommand, valveId);
     AppSerial::sendFrame(&closeValveFrame);
 }

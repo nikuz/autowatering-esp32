@@ -24,7 +24,10 @@ struct WateringStringVariable {
 struct WateringTargetVariable {
     char *name;
     char *lastWateringVar;
-    char *autoWateringVar;
+    char *manualWateringVar;
+    char *duration;
+    bool notificationSent;
+    struct tm notificationSentAt;
 };
 
 class Watering {
