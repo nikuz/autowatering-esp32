@@ -31,6 +31,8 @@ const int pinOtaBin = V21;
 const int pinOtaLastUpdateTime = V22;
 const int pinUptime = V11;
 const int pinRtcTemperature = V12;
+const int pinMegaUptime = V14;
+const int pinScreenEnabled = V15;
 const int pinSoilMoisture1 = V40;
 const int pinSoilMoisture2 = V41;
 const int pinSoilMoisture3 = V42;
@@ -67,7 +69,14 @@ const int pinS5WtrngDur = V74;
 const int pinS6WtrngDur = V75;
 const int pinS7WtrngDur = V76;
 const int pinS8WtrngDur = V77;
-const int pinMegaUptime = V34;
+const int pinS1Enabled = V80;
+const int pinS2Enabled = V81;
+const int pinS3Enabled = V82;
+const int pinS4Enabled = V83;
+const int pinS5Enabled = V84;
+const int pinS6Enabled = V85;
+const int pinS7Enabled = V86;
+const int pinS8Enabled = V87;
 
 // cache
 int fishIntCache = -32000;
@@ -104,7 +113,7 @@ const unsigned long blynkConnectAttemptTime = 5UL * 1000UL;  // try to connect t
 bool blynkConnectAttemptFirstTime = true;
 WidgetTerminal blynkTerminal(V30);
 
-static BlynkIntVariable intVariables[20];
+static BlynkIntVariable intVariables[30];
 static BlynkStringVariable stringVariables[10];
 static BlynkSyncVariable syncVariables[] = {
     {"otaHost",           false},
@@ -148,6 +157,7 @@ int AppBlynk::getPinById(const char *pinId) {
     if (strcmp(pinId, "otaBin") == 0) return pinOtaBin;
     if (strcmp(pinId, "otaLastUpdateTime") == 0) return pinOtaLastUpdateTime;
     if (strcmp(pinId, "uptime") == 0) return pinUptime;
+    if (strcmp(pinId, "screenEnabled") == 0) return pinScreenEnabled;
     if (strcmp(pinId, "rtcTemperature") == 0) return pinRtcTemperature;
     if (strcmp(pinId, "soilMoisture1") == 0) return pinSoilMoisture1;
     if (strcmp(pinId, "soilMoisture2") == 0) return pinSoilMoisture2;
@@ -160,6 +170,7 @@ int AppBlynk::getPinById(const char *pinId) {
     if (strcmp(pinId, "wSoilMstrMin") == 0) return pinWSoilMstrMin;
     if (strcmp(pinId, "autoWatering") == 0) return pinAutoWatering;
     if (strcmp(pinId, "watering") == 0) return pinWatering;
+    if (strcmp(pinId, "wInterval") == 0) return pinWateringInterval;
     if (strcmp(pinId, "s1LstWtrng") == 0) return pinS1LstWtrng;
     if (strcmp(pinId, "s2LstWtrng") == 0) return pinS2LstWtrng;
     if (strcmp(pinId, "s3LstWtrng") == 0) return pinS3LstWtrng;
@@ -184,6 +195,14 @@ int AppBlynk::getPinById(const char *pinId) {
     if (strcmp(pinId, "s6WtrngDur") == 0) return pinS6WtrngDur;
     if (strcmp(pinId, "s7WtrngDur") == 0) return pinS7WtrngDur;
     if (strcmp(pinId, "s8WtrngDur") == 0) return pinS8WtrngDur;
+    if (strcmp(pinId, "s1Enabled") == 0) return pinS1Enabled;
+    if (strcmp(pinId, "s2Enabled") == 0) return pinS2Enabled;
+    if (strcmp(pinId, "s3Enabled") == 0) return pinS3Enabled;
+    if (strcmp(pinId, "s4Enabled") == 0) return pinS4Enabled;
+    if (strcmp(pinId, "s5Enabled") == 0) return pinS5Enabled;
+    if (strcmp(pinId, "s6Enabled") == 0) return pinS6Enabled;
+    if (strcmp(pinId, "s7Enabled") == 0) return pinS7Enabled;
+    if (strcmp(pinId, "s8Enabled") == 0) return pinS8Enabled;
     if (strcmp(pinId, "megaUptime") == 0) return pinMegaUptime;
 
     return -1;
@@ -300,28 +319,52 @@ void AppBlynk::sync() { // every second
                 AppBlynk::postData(pin, AppTime::RTCGetTemperature());
             };
             if (strcmp(pin, "soilMoisture1") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_1));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s1Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_1) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture2") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_2));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s2Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_2) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture3") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_3));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s3Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_3) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture4") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_4));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s4Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_4) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture5") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_5));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s5Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_5) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture6") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_6));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s6Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_6) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture7") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_7));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s7Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_7) : 0
+                );
             };
             if (strcmp(pin, "soilMoisture8") == 0) {
-                AppBlynk::postData(pin, Sensor::getSoilMoisture(SOIL_SENSOR_8));
+                AppBlynk::postData(
+                    pin,
+                    AppBlynk::getIntVariable("s8Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_8) : 0
+                );
             };
             if (strcmp(pin, "watering") == 0) {
                 AppBlynk::postData(pin, Relay::isWateringEnabled() ? 255 : 0);
@@ -385,8 +428,14 @@ BLYNK_WRITE(V20) { // otaHost
 BLYNK_WRITE(V21) { // otaBin
     writeHandler("otaBin", param.asStr(), true);
 };
+BLYNK_WRITE(V15) { // screenEnabled
+    writeHandler("screenEnabled", param.asInt(), true);
+};
 BLYNK_WRITE(V23) { // wSoilMstrMin
     writeHandler("wSoilMstrMin", param.asInt(), true);
+};
+BLYNK_WRITE(V26) { // wInterval
+    writeHandler("wInterval", param.asInt(), true);
 };
 BLYNK_WRITE(V29) { // autoWatering
     int value = param.asInt();
@@ -452,60 +501,52 @@ BLYNK_WRITE(V67) {
     writeHandler("s8MnlWtrng", value, false);
 };
 BLYNK_WRITE(V70) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s1WtrngDur", value, false);
+    writeHandler("s1WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V71) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s2WtrngDur", value, false);
+    writeHandler("s2WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V72) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s3WtrngDur", value, false);
+    writeHandler("s3WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V73) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s4WtrngDur", value, false);
+    writeHandler("s4WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V74) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s5WtrngDur", value, false);
+    writeHandler("s5WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V75) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s6WtrngDur", value, false);
+    writeHandler("s6WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V76) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s7WtrngDur", value, false);
+    writeHandler("s7WtrngDur", param.asInt(), true);
 };
 BLYNK_WRITE(V77) {
-    int value = param.asInt();
-    if (value == 0) {
-        Watering::stop();
-    }
-    writeHandler("s8WtrngDur", value, false);
+    writeHandler("s8WtrngDur", param.asInt(), true);
+};
+BLYNK_WRITE(V80) {
+    writeHandler("s1Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V81) {
+    writeHandler("s2Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V82) {
+    writeHandler("s3Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V83) {
+    writeHandler("s4Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V84) {
+    writeHandler("s5Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V85) {
+    writeHandler("s6Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V86) {
+    writeHandler("s7Enabled", param.asInt(), true);
+};
+BLYNK_WRITE(V87) {
+    writeHandler("s8Enabled", param.asInt(), true);
 };
 BLYNK_WRITE(V10) { // ping
     if (param.asInt() == 1) {

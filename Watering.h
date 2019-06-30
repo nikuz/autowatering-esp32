@@ -23,6 +23,7 @@ struct WateringStringVariable {
 
 struct WateringTargetVariable {
     char *name;
+    char *enabled;
     char *lastWateringVar;
     char *manualWateringVar;
     char *duration;

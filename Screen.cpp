@@ -9,9 +9,45 @@
 
 U8G2_SSD1327_WS_128X128_F_4W_SW_SPI u8g2(U8G2_R0, 18, 23, 5, 19, U8X8_PIN_NONE);
 
+static const int centerOfScreen = 64;
+
+static ScreenIntVariable intVariables[10];
+static ScreenTargetVariable targetVariables[] = {
+    {"s1Enabled", SOIL_SENSOR_1, 15, 0},
+    {"s2Enabled", SOIL_SENSOR_2, 15, centerOfScreen},
+    {"s3Enabled", SOIL_SENSOR_3, 40, 0},
+    {"s4Enabled", SOIL_SENSOR_4, 40, centerOfScreen},
+    {"s5Enabled", SOIL_SENSOR_5, 65, 0},
+    {"s6Enabled", SOIL_SENSOR_6, 65, centerOfScreen},
+    {"s7Enabled", SOIL_SENSOR_7, 90, 0},
+    {"s8Enabled", SOIL_SENSOR_8, 90, centerOfScreen},
+};
+static int blankIntVariable = -1;
+
 Screen::Screen() {}
 
 Screen::~Screen() {}
+
+void Screen::setVariable(int *var, const char *key) {
+    int varsLen = *(&intVariables + 1) - intVariables;
+    for (int i = 0; i < varsLen; i++) {
+        if (!intVariables[i].key) {
+            intVariables[i] = ScreenIntVariable(var, key);
+            break;
+        }
+    }
+}
+
+int &Screen::getIntVariable(const char *key) {
+    const int varsLen = *(&intVariables + 1) - intVariables;
+    for (int i = 0; i < varsLen; i++) {
+        if (intVariables[i].key == key) {
+            return *intVariables[i].var;
+        }
+    }
+
+    return blankIntVariable;
+}
 
 void Screen::initiate() {
     u8g2.begin();
@@ -38,36 +74,24 @@ void Screen::sendBuffer() {
     u8g2.sendBuffer();
 }
 
-void Screen::printSoilMoisture(int value1, int value2, int value3) {
-    if (isnan(value1) || isnan(value2) || isnan(value3)) {
+void Screen::printSoilMoisture(int number, int value, int line, int row) {
+    if (isnan(value)) {
         return;
     }
-    const int line = 70;
-    u8g2.setFont(u8g2_font_crox1cb_tf);
+    u8g2.setFont(u8g2_font_8x13B_tr);
 
+    static char numberStr[10];
     const char *percent = "%";
-    const int percentWidth = u8g2.getStrWidth(percent);
-    const int gap = percentWidth;
 
-    // value1
-    const char *value1String = Tools::intToChar(value1);
-    u8g2.drawStr(0, line, value1String);
-    const int value1Width = u8g2.getStrWidth(value1String);
-    u8g2.drawStr(value1Width, line, percent);
+    strcpy(numberStr, Tools::intToChar(number));
+    strcat(numberStr, ": ");
+    u8g2.drawStr(row, line, numberStr);
+    const int numberWidth = u8g2.getStrWidth(numberStr);
 
-    // value2
-    const char *value2String = Tools::intToChar(value2);
-    const int value2Row = value1Width + percentWidth + gap;
-    u8g2.drawStr(value2Row, line, value2String);
-    const int value2Width = u8g2.getStrWidth(value2String);
-    u8g2.drawStr(value2Row + value2Width, line, percent);
-
-    // value3
-    const char *value3String = Tools::intToChar(value3);
-    const int value3Row = value2Row + value2Width + percentWidth + gap;
-    u8g2.drawStr(value3Row, line, value3String);
-    const int value3Width = u8g2.getStrWidth(value3String);
-    u8g2.drawStr(value3Row + value3Width, line, percent);
+    const char *valueString = Tools::intToChar(value);
+    u8g2.drawStr(row + numberWidth, line, valueString);
+    const int valueWidth = u8g2.getStrWidth(valueString);
+    u8g2.drawStr(row + numberWidth + valueWidth, line, percent);
 }
 
 void Screen::printAppVersion() {
@@ -96,13 +120,24 @@ void Screen::printUptime() {
 
 void Screen::refresh() {
     clearBuffer();
-    printSoilMoisture(
-        Sensor::getSoilMoisture(SOIL_SENSOR_1),
-        Sensor::getSoilMoisture(SOIL_SENSOR_2),
-        Sensor::getSoilMoisture(SOIL_SENSOR_3)
-    );
-    printAppVersion();
-    printUptime();
+    int screenEnabled = Screen::getIntVariable("screenEnabled");
+
+    if (screenEnabled == 1) {
+        const int varsLen = *(&targetVariables + 1) - targetVariables;
+        for (int i = 0; i < varsLen; i++) {
+            if (Screen::getIntVariable(targetVariables[i].name) == 1) {
+                printSoilMoisture(
+                    i + 1,
+                    Sensor::getSoilMoisture(targetVariables[i].sensorVar),
+                    targetVariables[i].line,
+                    targetVariables[i].row
+                );
+            }
+        }
+
+        printAppVersion();
+        printUptime();
+    }
 
     sendBuffer();
 }

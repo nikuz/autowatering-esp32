@@ -31,6 +31,7 @@ EspOta otaUpdate(otaHost, otaPort, otaBin, TAG);
 const unsigned long otaCheckUpdateInterval = 60UL * 1000UL;  // check OTA update every minute
 
 const unsigned long screenRefreshInterval = 2UL * 1000UL; // refresh screen every 2 seconds
+int screenEnabled = 1;
 
 // watering
 const unsigned long wateringInterval = 5UL * 1000UL; // check every 5 seconds
@@ -38,6 +39,14 @@ const unsigned long wateringProgressCheckInterval = 1UL * 1000UL;  // check ever
 int autoWatering = 0;   // auto watering disabled by default
 int wSoilMstrMin = 30;
 int wInterval = 5;
+int s1Enabled = 0;
+int s2Enabled = 0;
+int s3Enabled = 0;
+int s4Enabled = 0;
+int s5Enabled = 0;
+int s6Enabled = 0;
+int s7Enabled = 0;
+int s8Enabled = 0;
 int s1MnlWtrng = 0;
 int s2MnlWtrng = 0;
 int s3MnlWtrng = 0;
@@ -80,6 +89,15 @@ void otaUpdateHandler() {
 
 void setup() {
     // initiate screen first to show loading state
+    Screen::setVariable(&s1Enabled, "s1Enabled");
+    Screen::setVariable(&s2Enabled, "s2Enabled");
+    Screen::setVariable(&s3Enabled, "s3Enabled");
+    Screen::setVariable(&s4Enabled, "s4Enabled");
+    Screen::setVariable(&s5Enabled, "s5Enabled");
+    Screen::setVariable(&s6Enabled, "s6Enabled");
+    Screen::setVariable(&s7Enabled, "s7Enabled");
+    Screen::setVariable(&s8Enabled, "s8Enabled");
+    Screen::setVariable(&screenEnabled, "screenEnabled");
     Screen::initiate();
 
     // Begin debug Serial
@@ -107,6 +125,7 @@ void setup() {
     // restore preferences
     AppStorage::setVariable(&otaHost, "otaHost");
     AppStorage::setVariable(&otaBin, "otaBin");
+    AppStorage::setVariable(&screenEnabled, "screenEnabled");
     AppStorage::setVariable(&wSoilMstrMin, "wSoilMstrMin");
     AppStorage::setVariable(&autoWatering, "autoWatering");
     AppStorage::setVariable(&s1LstWtrng, "s1LstWtrng");
@@ -125,6 +144,14 @@ void setup() {
     AppStorage::setVariable(&s6WtrngDur, "s6WtrngDur");
     AppStorage::setVariable(&s7WtrngDur, "s7WtrngDur");
     AppStorage::setVariable(&s8WtrngDur, "s8WtrngDur");
+    AppStorage::setVariable(&s1Enabled, "s1Enabled");
+    AppStorage::setVariable(&s2Enabled, "s2Enabled");
+    AppStorage::setVariable(&s3Enabled, "s3Enabled");
+    AppStorage::setVariable(&s4Enabled, "s4Enabled");
+    AppStorage::setVariable(&s5Enabled, "s5Enabled");
+    AppStorage::setVariable(&s6Enabled, "s6Enabled");
+    AppStorage::setVariable(&s7Enabled, "s7Enabled");
+    AppStorage::setVariable(&s8Enabled, "s8Enabled");
     AppStorage::restore();
 
     // setup wifi ip address etc.
@@ -168,10 +195,19 @@ void setup() {
     Watering::setVariable(&s6WtrngDur, "s6WtrngDur");
     Watering::setVariable(&s7WtrngDur, "s7WtrngDur");
     Watering::setVariable(&s8WtrngDur, "s8WtrngDur");
+    Watering::setVariable(&s1Enabled, "s1Enabled");
+    Watering::setVariable(&s2Enabled, "s2Enabled");
+    Watering::setVariable(&s3Enabled, "s3Enabled");
+    Watering::setVariable(&s4Enabled, "s4Enabled");
+    Watering::setVariable(&s5Enabled, "s5Enabled");
+    Watering::setVariable(&s6Enabled, "s6Enabled");
+    Watering::setVariable(&s7Enabled, "s7Enabled");
+    Watering::setVariable(&s8Enabled, "s8Enabled");
 
     // register Blynk variables
     AppBlynk::setVariable(&otaHost, "otaHost");
     AppBlynk::setVariable(&otaBin, "otaBin");
+    AppBlynk::setVariable(&screenEnabled, "screenEnabled");
     AppBlynk::setVariable(&wSoilMstrMin, "wSoilMstrMin");
     AppBlynk::setVariable(&autoWatering, "autoWatering");
     AppBlynk::setVariable(&wInterval, "wInterval");
@@ -191,6 +227,14 @@ void setup() {
     AppBlynk::setVariable(&s6WtrngDur, "s6WtrngDur");
     AppBlynk::setVariable(&s7WtrngDur, "s7WtrngDur");
     AppBlynk::setVariable(&s8WtrngDur, "s8WtrngDur");
+    AppBlynk::setVariable(&s1Enabled, "s1Enabled");
+    AppBlynk::setVariable(&s2Enabled, "s2Enabled");
+    AppBlynk::setVariable(&s3Enabled, "s3Enabled");
+    AppBlynk::setVariable(&s4Enabled, "s4Enabled");
+    AppBlynk::setVariable(&s5Enabled, "s5Enabled");
+    AppBlynk::setVariable(&s6Enabled, "s6Enabled");
+    AppBlynk::setVariable(&s7Enabled, "s7Enabled");
+    AppBlynk::setVariable(&s8Enabled, "s8Enabled");
 
     // start Blynk connection
     AppBlynk::initiate();

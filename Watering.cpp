@@ -9,17 +9,17 @@
 #include "Relay.h"
 #include "Tools.h"
 
-static WateringIntVariable intVariables[20];
+static WateringIntVariable intVariables[30];
 static WateringStringVariable stringVariables[10];
 static WateringTargetVariable targetVariables[] = {
-    {"s1", "s1LstWtrng", "s1MnlWtrng", "s1WtrngDur", false, {0}},
-    {"s2", "s2LstWtrng", "s2MnlWtrng", "s2WtrngDur", false, {0}},
-    {"s3", "s3LstWtrng", "s3MnlWtrng", "s3WtrngDur", false, {0}},
-    {"s4", "s4LstWtrng", "s4MnlWtrng", "s4WtrngDur", false, {0}},
-    {"s5", "s4LstWtrng", "s5MnlWtrng", "s5WtrngDur", false, {0}},
-    {"s6", "s4LstWtrng", "s6MnlWtrng", "s6WtrngDur", false, {0}},
-    {"s7", "s4LstWtrng", "s7MnlWtrng", "s7WtrngDur", false, {0}},
-    {"s8", "s4LstWtrng", "s8MnlWtrng", "s8WtrngDur", false, {0}},
+    {"s1", "s1Enabled", "s1LstWtrng", "s1MnlWtrng", "s1WtrngDur", false, {0}},
+    {"s2", "s2Enabled", "s2LstWtrng", "s2MnlWtrng", "s2WtrngDur", false, {0}},
+    {"s3", "s3Enabled", "s3LstWtrng", "s3MnlWtrng", "s3WtrngDur", false, {0}},
+    {"s4", "s4Enabled", "s4LstWtrng", "s4MnlWtrng", "s4WtrngDur", false, {0}},
+    {"s5", "s5Enabled", "s5LstWtrng", "s5MnlWtrng", "s5WtrngDur", false, {0}},
+    {"s6", "s6Enabled", "s6LstWtrng", "s6MnlWtrng", "s6WtrngDur", false, {0}},
+    {"s7", "s7Enabled", "s7LstWtrng", "s7MnlWtrng", "s7WtrngDur", false, {0}},
+    {"s8", "s8Enabled", "s8LstWtrng", "s8MnlWtrng", "s8WtrngDur", false, {0}},
 };
 static int blankIntVariable = -1;
 static String blankStringVariable = "";
@@ -65,7 +65,7 @@ bool isWateringEnabled() {
     bool manualWateringEnabled = false;
     const int varsLen = *(&targetVariables + 1) - targetVariables;
     for (int i = 0; i < varsLen; i++) {
-        if (Watering::getIntVariable(targetVariables[i].manualWateringVar)) {
+        if (Watering::getIntVariable(targetVariables[i].manualWateringVar) == 1) {
             manualWateringEnabled = true;
         }
     }
@@ -101,15 +101,18 @@ int getSoilMoisture(const char *sensorId) {
     return 0;
 }
 
-double getLastTimeWateringForPot(char *lastWateringVar) {
-    String &lastWateringTime = Watering::getStringVariable(lastWateringVar);
-    double lastWateringSec = AppTime::compareDates(lastWateringTime, AppTime::getCurrentTime());
-    return lastWateringSec > 0 ? lastWateringSec : 0;
-}
-
 int getWateringInterval() {
     int &wateringInterval = Watering::getIntVariable("wInterval");
     return wateringInterval * 60;
+}
+
+double getLastTimeWateringForPot(char *lastWateringVar) {
+    String &lastWateringTime = Watering::getStringVariable(lastWateringVar);
+    if (lastWateringTime == "") {
+        return getWateringInterval();
+    }
+    double lastWateringSec = AppTime::compareDates(lastWateringTime, AppTime::getCurrentTime());
+    return lastWateringSec > 0 ? lastWateringSec : 0;
 }
 
 void printLastWateringTime(char *name, double prevWateringSec) {
@@ -182,6 +185,9 @@ void valve() {
 
         AppBlynk::print("Valve was open for: ");
         AppBlynk::println(wateringStartedFor);
+        AppBlynk::print("For: ");
+        AppBlynk::print(wateringDuration);
+        AppBlynk::println(" sec");
         return;
     }
 
@@ -203,8 +209,10 @@ void soilMoisture() {
     const int varsLen = *(&targetVariables + 1) - targetVariables;
     for (int i = 0; i < varsLen; i++) {
         char *targetVarName = targetVariables[i].name;
+        int &enabled = Watering::getIntVariable(targetVariables[i].enabled);
         int &manualWatering = Watering::getIntVariable(targetVariables[i].manualWateringVar);
-        if (manualWatering) {
+        if (enabled == 1 && manualWatering == 1) {
+            Serial.println(targetVarName);
             isManualWateringEnabled = true;
             strcpy(manualWateringNeededFor, targetVarName);
             break;
@@ -213,7 +221,11 @@ void soilMoisture() {
     if (!wateringStarted) {
         for (int i = 0; i < varsLen; i++) {
             char *targetVarName = targetVariables[i].name;
-            if (isManualWateringEnabled && strcmp(manualWateringNeededFor, targetVarName) != 0) {
+            int &enabled = Watering::getIntVariable(targetVariables[i].enabled);
+            if (
+                (isManualWateringEnabled && strcmp(manualWateringNeededFor, targetVarName) != 0)
+                || enabled != 1
+            ) {
                 continue;
             }
             double lastWateringSec = getLastTimeWateringForPot(targetVariables[i].lastWateringVar);
@@ -280,7 +292,7 @@ void Watering::stop() {
             }
             // disable manual watering to do the watering only once
             int &manualWateringEnabled = Watering::getIntVariable(targetVariables[i].manualWateringVar);
-            if (manualWateringEnabled) {
+            if (manualWateringEnabled == 1) {
                 manualWateringEnabled = 0;
                 AppBlynk::postDataNoCache(targetVariables[i].manualWateringVar, 0);
             }
