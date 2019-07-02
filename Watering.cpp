@@ -127,23 +127,15 @@ void printLastWateringTime(char *name, double prevWateringSec) {
 }
 
 void sendNotification(char *name, int potSoilMoisture) {
-    int wateringInterval = getWateringInterval();
     const int varsLen = *(&targetVariables + 1) - targetVariables;
+
     for (int i = 0; i < varsLen; i++) {
         if (strcmp(name, targetVariables[i].name) == 0) {
-            bool notificationSent = targetVariables[i].notificationSent;
-            struct tm notificationSentAt = targetVariables[i].notificationSentAt;
-            struct tm now = AppTime::getCurrentTime();
-            if (
-                !notificationSent
-                || AppTime::compareDates(notificationSentAt, now) >= wateringInterval
-            ) {
-                targetVariables[i].notificationSent = true;
-                targetVariables[i].notificationSentAt = now;
-                AppBlynk::notify(
-                    "Autowatering low soil moisture at " + String(name) + ": " + String(potSoilMoisture)
-                );
-            }
+            targetVariables[i].notificationSent = true;
+            targetVariables[i].notificationSentAt = AppTime::getCurrentTime();
+            AppBlynk::notify(
+                "Autowatering low soil moisture at " + String(name) + ": " + String(potSoilMoisture)
+            );
         }
     }
 }
@@ -241,7 +233,16 @@ void soilMoisture() {
                         printLastWateringTime(targetVarName, lastWateringSec);
                     }
                 } else {
-                    sendNotification(targetVarName, potSoilMoisture);
+                    if (
+                        !targetVariables[i].notificationSent
+                        || AppTime::compareDates(
+                            targetVariables[i].notificationSentAt,
+                            AppTime::getCurrentTime()
+                        ) >= wateringInterval
+                    ) {
+                        sendNotification(targetVarName, potSoilMoisture);
+                        break;
+                    }
                 }
             }
         }
@@ -323,8 +324,7 @@ void Watering::checkProgress() {
 
 void Watering::check() {
     if (
-        isWateringEnabled()
-        && !Tools::millisOverflowIsClose()
+        !Tools::millisOverflowIsClose()
         && !wateringStarted
     ) {
         soilMoisture();

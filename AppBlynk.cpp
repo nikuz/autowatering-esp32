@@ -550,7 +550,7 @@ BLYNK_WRITE(V87) {
 };
 BLYNK_WRITE(V10) { // ping
     if (param.asInt() == 1) {
-        Blynk.notify("PONG");
+        AppBlynk::notify("PONG");
         Blynk.virtualWrite(V10, 0);
     }
 };
