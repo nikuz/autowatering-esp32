@@ -26,6 +26,8 @@
 // Blynk virtual pins
 const int pinVersion = V5;
 const int pinRtcBattery = V9;
+const int wifiSSID = V25;
+const int wifiPassword = V27;
 const int pinOtaHost = V20;
 const int pinOtaBin = V21;
 const int pinOtaLastUpdateTime = V22;
@@ -95,6 +97,8 @@ int wSoilMstrMinCache = 0;
 int autoWateringCache = 0;
 int wateringCache = 0;
 String fishStringCache = "fish";
+String wifiSSIDCache = "";
+String wifiPasswordCache = "";
 String otaHostCache = "";
 String otaBinCache = "";
 String otaLastUpdateTimeCache = "";
@@ -114,8 +118,10 @@ bool blynkConnectAttemptFirstTime = true;
 WidgetTerminal blynkTerminal(V30);
 
 static BlynkIntVariable intVariables[30];
-static BlynkStringVariable stringVariables[10];
+static BlynkStringVariable stringVariables[15];
 static BlynkSyncVariable syncVariables[] = {
+    {"wifiSSID",          false},
+    {"wifiPassword",      false},
     {"otaHost",           false},
     {"otaBin",            false},
     {"otaLastUpdateTime", false},
@@ -153,6 +159,8 @@ AppBlynk::~AppBlynk() {};
 int AppBlynk::getPinById(const char *pinId) {
     if (strcmp(pinId, "version") == 0) return pinVersion;
     if (strcmp(pinId, "rtcBattery") == 0) return pinRtcBattery;
+    if (strcmp(pinId, "wifiSSID") == 0) return wifiSSID;
+    if (strcmp(pinId, "wifiPassword") == 0) return wifiPassword;
     if (strcmp(pinId, "otaHost") == 0) return pinOtaHost;
     if (strcmp(pinId, "otaBin") == 0) return pinOtaBin;
     if (strcmp(pinId, "otaLastUpdateTime") == 0) return pinOtaLastUpdateTime;
@@ -228,6 +236,8 @@ int &AppBlynk::getIntCacheValue(const char *pinId) {
 }
 
 String &AppBlynk::getStringCacheValue(const char *pinId) {
+    if (strcmp(pinId, "wifiSSID") == 0) return wifiSSIDCache;
+    if (strcmp(pinId, "wifiPassword") == 0) return wifiPasswordCache;
     if (strcmp(pinId, "otaHost") == 0) return otaHostCache;
     if (strcmp(pinId, "otaBin") == 0) return otaBinCache;
     if (strcmp(pinId, "otaLastUpdateTime") == 0) return otaLastUpdateTimeCache;
@@ -295,6 +305,14 @@ void AppBlynk::sync() { // every second
             DEBUG_PRINT("Sync pin: ");
             DEBUG_PRINT(pin);
             DEBUG_PRINT(": ");
+            if (strcmp(pin, "wifiSSID") == 0) {
+                String &wifiSSIDVariable = AppBlynk::getStringVariable(pin);
+                AppBlynk::postData(pin, wifiSSIDVariable);
+            };
+            if (strcmp(pin, "wifiPassword") == 0) {
+                String &wifiPasswordVariable = AppBlynk::getStringVariable(pin);
+                AppBlynk::postData(pin, wifiPasswordVariable);
+            };
             if (strcmp(pin, "otaHost") == 0) {
                 String &otaHostVariable = AppBlynk::getStringVariable(pin);
                 AppBlynk::postData(pin, otaHostVariable);
@@ -324,7 +342,7 @@ void AppBlynk::sync() { // every second
                     AppBlynk::getIntVariable("s1Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_1) : 0
                 );
             };
-            if (strcmp(pin, "soilMoisture2") == 0) {
+            if (strcmp(pin, "soilMoisture2") == 0 && AppBlynk::getIntVariable("s2Enabled")) {
                 AppBlynk::postData(
                     pin,
                     AppBlynk::getIntVariable("s2Enabled") == 1 ? Sensor::getSoilMoisture(SOIL_SENSOR_2) : 0
@@ -422,6 +440,12 @@ void writeHandler(const char *pin, String value, bool store) {
     AppBlynk::getData(variable, pin, value, store);
 }
 
+BLYNK_WRITE(V25) { // wifiSSID
+    writeHandler("wifiSSID", param.asStr(), true);
+};
+BLYNK_WRITE(V27) { // wifiPassword
+    writeHandler("wifiPassword", param.asStr(), true);
+};
 BLYNK_WRITE(V20) { // otaHost
     writeHandler("otaHost", param.asStr(), true);
 };
@@ -570,8 +594,8 @@ BLYNK_WRITE(V31) { // restart
 BLYNK_WRITE(V35) { // mega restart
     if (param.asInt() == 1) {
         Blynk.virtualWrite(V35, 0);
-        delay(2000);
         Tools::megaRestart();
+        delay(2000);
     }
 };
 

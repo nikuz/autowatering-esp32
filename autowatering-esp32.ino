@@ -15,6 +15,10 @@
 static const char *TAG = "autowatering";
 AppTime timer;
 
+// WiFI settings
+String wifiSSID = "";
+String wifiPassword = "";
+
 // OTA settings
 String otaHost = "selfproduct.com";
 const int otaPort = 80;  // Non https. For HTTPS 443. As of today, HTTPS doesn't work.
@@ -123,6 +127,8 @@ void setup() {
     }
 
     // restore preferences
+    AppStorage::setVariable(&wifiSSID, "wifiSSID");
+    AppStorage::setVariable(&wifiPassword, "wifiPassword");
     AppStorage::setVariable(&otaHost, "otaHost");
     AppStorage::setVariable(&otaBin, "otaBin");
     AppStorage::setVariable(&screenEnabled, "screenEnabled");
@@ -155,6 +161,8 @@ void setup() {
     AppStorage::restore();
 
     // setup wifi ip address etc.
+    AppWiFi::setVariable(&wifiSSID, "wifiSSID");
+    AppWiFi::setVariable(&wifiPassword, "wifiPassword");
     AppWiFi::connect();
 
     //get internet time
@@ -205,6 +213,8 @@ void setup() {
     Watering::setVariable(&s8Enabled, "s8Enabled");
 
     // register Blynk variables
+    AppBlynk::setVariable(&wifiSSID, "wifiSSID");
+    AppBlynk::setVariable(&wifiPassword, "wifiPassword");
     AppBlynk::setVariable(&otaHost, "otaHost");
     AppBlynk::setVariable(&otaBin, "otaBin");
     AppBlynk::setVariable(&screenEnabled, "screenEnabled");
